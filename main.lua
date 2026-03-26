@@ -36,6 +36,9 @@ function BongoCat:init()
     self:onDispatcherRegisterActions()
     self.ui.menu:registerToMainMenu(self)
 
+    self.prev_day_refresh, self.prev_night_refresh = UIManager:getRefreshRate()
+    UIManager:setRefreshRate(0, 0)
+
     if Device:hasKeys() then
         self.key_events.AnyKeyPressed = { { Input.group.Any } }
     end
@@ -46,9 +49,21 @@ function BongoCat:init()
                 range = Geom:new{ x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight() }
             }
         }
-        self.ges_events.HoldRelease = {
+        self.ges_events.TapRelease = {
             GestureRange:new{
                 ges = "tap",
+                range = Geom:new{ x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight() }
+            }
+        }
+        self.ges_events.HoldRelease = {
+            GestureRange:new{
+                ges = "hold_release",
+                range = Geom:new{ x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight() }
+            }
+        }
+        self.ges_events.PanRelease = {
+            GestureRange:new{
+                ges = "swipe",
                 range = Geom:new{ x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight() }
             }
         }
@@ -145,23 +160,37 @@ function BongoCat:onHold()
     -- finger is down: keep paws down
     self.image_widget.file = self.file_names[1]
     self.image_widget:free()
-    UIManager:setDirty(self, "fast")
+    UIManager:setDirty(self, "[ui]", Geom:new{ x = 0, y = Screen:getHeight()/3, w = Screen:getWidth(), h = Screen:getHeight()/2 })
     return true
 end
 
+function BongoCat:onTapRelease()
+    BongoCat:Release()
+    return true
+end
 function BongoCat:onHoldRelease()
+    BongoCat:Release()
+    return true
+end
+function BongoCat:onPanRelease()
+    BongoCat:Release()
+    return true
+end
+
+function BongoCat:Release()
     -- finger released: paws back up
     self.image_widget.file = self.file_names[0]
     self.image_widget:free()
-    UIManager:setDirty(self, "fast")
+    UIManager:setDirty(self, "[ui]", Geom:new{ x = 0, y = Screen:getHeight()/2.5, w = Screen:getWidth(), h = Screen:getHeight()/3 })
     return true
 end
 
 function BongoCat:onTapClose()
+    if self.prev_day_refresh then
+        UIManager:setRefreshRate(self.prev_day_refresh, self.prev_night_refresh)
+    end
     UIManager:close(self, "full")
 end
 BongoCat.onAnyKeyPressed = BongoCat.onTapClose
-
-
 
 return BongoCat
