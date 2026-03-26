@@ -1,3 +1,13 @@
+--[[
+To my dearest, Angel
+
+Thank you for being mine. I can't wait to live many more years with you.
+Enjoy the BongoCat <3
+
+I love you,
+Mike
+]]
+
 local Dispatcher = require("dispatcher")  -- luacheck:ignore
 local Device = require("device")
 local Geom = require("ui/geometry")
